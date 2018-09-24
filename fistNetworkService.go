@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"sync"
 )
 
 func silniaInt(n int64) (result int64) {
@@ -22,6 +23,17 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/", handler)
-	http.ListenAndServe(":8080", nil)
+	var wg sync.WaitGroup
+
+	wg.Add(20)
+	for i := int64(1); i <= 20; i++ {
+		go func(n int64) {
+			wg.Done()
+			fmt.Println("Silnia ", n, ": ", silniaInt(n))
+		}(i)
+	}
+
+	wg.Wait()
+	//http.HandleFunc("/", handler)
+	//http.ListenAndServe(":8080", nil)
 }
